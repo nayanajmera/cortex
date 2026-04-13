@@ -269,10 +269,14 @@ router.get('/group/:groupId', auth, async (req, res) => {
         }
 
         // 2. Fetch Dumps
-        // Logic: Get dumps that belong to this group AND are not private
+        // Logic: Show PUBLIC dumps from everyone in this group
+        //        + PRIVATE dumps that belong to the requesting user (owner can always see their own)
         const dumps = await Dump.find({
             group: groupId,
-            isPrivate: false
+            $or: [
+                { isPrivate: false },                    // All public dumps
+                { isPrivate: true, user: req.user.id }   // My own private dumps
+            ]
         })
             .populate('user', 'username') // "Populate" fetches the author's name from User collection
             .sort({ createdAt: -1 }); // Newest first
