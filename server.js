@@ -92,6 +92,7 @@ const rateLimit = require('express-rate-limit');
 // 1. Hardened CORS (Must come first to handle preflights)
 app.use(cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
@@ -128,10 +129,6 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/dumps', require('./routes/dumps'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/groups', require('./routes/groups'));
-
-app.get('/', (req, res) => {
-    res.send('API is running... Ganeshaay Namah!');
-});
 
 // --- Server Startup ---
 const PORT = process.env.PORT || 5000;
