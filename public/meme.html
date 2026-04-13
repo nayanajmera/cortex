@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cortex API — Wrong Turn 😂</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            padding: 24px;
+            text-align: center;
+        }
+        h1 {
+            font-size: clamp(22px, 5vw, 36px);
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: #555;
+            font-size: 13px;
+            margin-bottom: 32px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        .meme-container {
+            position: relative;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 80px rgba(255, 200, 0, 0.1), 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid #222;
+        }
+        .meme-container img {
+            width: 100%;
+            display: block;
+        }
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #333, transparent);
+            margin: 28px auto;
+        }
+        .redirect-label {
+            color: #555;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 12px;
+        }
+        .redirect-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            color: #000;
+            font-weight: 800;
+            padding: 14px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(255,255,255,0.08);
+        }
+        .redirect-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(255,255,255,0.15);
+            background: #feca57;
+        }
+        .redirect-btn span { font-size: 20px; }
+        .badge {
+            margin-top: 40px;
+            font-size: 10px;
+            color: #333;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .meme-container { animation: float 4s ease-in-out infinite; }
+    </style>
+</head>
+<body>
+    <h1>Bhai sahab... 🤨</h1>
+    <p class="subtitle">aap ye kis line me aa gye</p>
+
+    <div class="meme-container">
+        <img src="/tenor.gif" alt="Akshay Kumar - Ye kis line me aa gye" />
+    </div>
+
+    <p class="redirect-label">Sahi line yahan hai 👇</p>
+    <a href="https://mycortex.vercel.app" class="redirect-btn">
+        <span>🧠</span> mycortex.vercel.app
+    </a>
+
+    <p class="badge">Cortex API v1.0 — Built with ❤️</p>
+</body>
+</html>

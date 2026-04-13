@@ -28,7 +28,7 @@ io.use((socket, next) => {
     try {
         const token = socket.handshake.auth.token;
         if (!token) return next(new Error('Authentication error'));
-        
+
         // Ensure to remove "Bearer " if included
         const cleanToken = token.replace('Bearer ', '');
         const decoded = jwt.verify(cleanToken, process.env.JWT_SECRET);
@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
 
             // Strict Validation: Is the user actually a member?
             const isMember = group.members.some(memberId => memberId.toString() === userId);
-            
+
             if (isMember) {
                 socket.join(hiveId);
                 // console.log(`User ${userId} joined room: ${hiveId}`);
@@ -102,7 +102,7 @@ app.use(helmet());
 // 3. Global Rate Limiter (Max 200 requests per 15 mins)
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200, 
+    max: 200,
     message: { msg: "Too many requests from this IP, please try again later." },
     standardHeaders: true,
     legacyHeaders: false
@@ -110,7 +110,7 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter);
 
 // 4. Payload format & size limit protection (Body Parser)
-app.use(express.json({ limit: '5mb' })); 
+app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
 // --- Database Connection (Placeholder for now) ---
@@ -118,17 +118,28 @@ const connectDB = async () => {
     try {
         // We will add the connection string later
         await mongoose.connect(process.env.mongoURL);
-        console.log('MongoDB connection ready...'); 
+        console.log('MongoDB connection ready...');
     } catch (error) {
         console.error('Database connection failed:', error);
         process.exit(1);
     }
 };
-//routes:-
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/dumps', require('./routes/dumps'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/groups', require('./routes/groups'));
+
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'meme.html'));
+});
+
+// Catch-all for any other unmatched requests (404 handler)
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', 'meme.html'));
+});
 
 // --- Server Startup ---
 const PORT = process.env.PORT || 5000;
