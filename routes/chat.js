@@ -22,6 +22,9 @@ router.post('/', auth, async (req, res) => {
         if (!message) {
             return res.status(400).json({ msg: "Message is required" });
         }
+        if (typeof message !== 'string' || message.length > 5000) {
+            return res.status(400).json({ msg: "Message must be under 5,000 characters." });
+        }
 
         // --- STEP 1: SEARCH (Find relevant notes) ---
 

@@ -13,6 +13,9 @@ router.post('/', auth, async (req, res) => {
     try {
         const { name } = req.body;
         if (!name) return res.status(400).json({ msg: "Name is required" });
+        if (typeof name !== 'string' || name.trim().length === 0 || name.length > 100) {
+            return res.status(400).json({ msg: "Hive name must be between 1 and 100 characters." });
+        }
 
         let joinCode;
         let isUnique = false;
