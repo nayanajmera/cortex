@@ -71,7 +71,13 @@ router.post('/join', auth, async (req, res) => {
         group.members.push(req.user.id);
         await group.save();
 
-        res.json(group);
+        const updatedGroup = await Group.findById(group._id).populate('members', 'username name');
+        const io = req.app.get('io');
+        if (io) {
+            io.to(group._id.toString()).emit('hive_membership_updated', { group: updatedGroup });
+        }
+
+        res.json(updatedGroup);
 
     } catch (err) {
         console.error(err.message);
@@ -145,9 +151,18 @@ router.delete('/:id/members/:userId', auth, async (req, res) => {
             }
         );
 
-        // Populate so frontend can update list immediately
-        await group.populate('members', 'username email');
-        res.json(group);
+        const revokeHiveAccessForUser = req.app.get('revokeHiveAccessForUser');
+        if (revokeHiveAccessForUser) {
+            revokeHiveAccessForUser(req.params.userId, req.params.id);
+        }
+
+        const updatedGroup = await Group.findById(req.params.id).populate('members', 'username name');
+        const io = req.app.get('io');
+        if (io) {
+            io.to(req.params.id).emit('hive_membership_updated', { group: updatedGroup });
+        }
+
+        res.json(updatedGroup);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -179,6 +194,11 @@ router.delete('/:id/leave', auth, async (req, res) => {
         );
         
         await group.save();
+
+        const revokeHiveAccessForUser = req.app.get('revokeHiveAccessForUser');
+        if (revokeHiveAccessForUser) {
+            revokeHiveAccessForUser(req.user.id, req.params.id);
+        }
         
         // Detach all dumps belonging to the leaving member
         await Dump.updateMany(
@@ -188,6 +208,12 @@ router.delete('/:id/leave', auth, async (req, res) => {
                 $set: { isPrivate: true }
             }
         );
+
+        const updatedGroup = await Group.findById(req.params.id).populate('members', 'username name');
+        const io = req.app.get('io');
+        if (io) {
+            io.to(req.params.id).emit('hive_membership_updated', { group: updatedGroup });
+        }
 
         res.json({ msg: "Successfully left the hive" });
     } catch (err) {
@@ -228,6 +254,11 @@ router.delete('/:id', auth, async (req, res) => {
         );
 
         await group.deleteOne();
+
+        const io = req.app.get('io');
+        if (io) {
+            io.to(req.params.id).emit('hive_deleted', { hiveId: req.params.id });
+        }
 
         res.json({ msg: "Hive deleted successfully." });
 

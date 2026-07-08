@@ -39,8 +39,31 @@ io.use((socket, next) => {
 // Socket.io Connection Management
 const activeUsers = new Map();
 
+const revokeHiveAccessForUser = (userId, hiveId = null) => {
+    const socket = activeUsers.get(userId);
+    if (!socket) return;
+
+    const targetHives = hiveId ? [hiveId] : Array.from(socket.joinedHives || []);
+
+    targetHives.forEach((roomId) => {
+        socket.leave(roomId);
+    });
+
+    if (socket.joinedHives) {
+        targetHives.forEach((roomId) => socket.joinedHives.delete(roomId));
+    }
+
+    if (hiveId) {
+        socket.emit('hive_access_revoked', { hiveId });
+    }
+};
+
+app.set('activeUsers', activeUsers);
+app.set('revokeHiveAccessForUser', revokeHiveAccessForUser);
+
 io.on('connection', (socket) => {
     const userId = socket.user.id;
+    socket.joinedHives = new Set();
 
     // Strict 1-Socket-Per-User Rule
     if (activeUsers.has(userId)) {
@@ -60,9 +83,10 @@ io.on('connection', (socket) => {
 
             if (isMember) {
                 socket.join(hiveId);
+                socket.joinedHives.add(hiveId);
                 // console.log(`User ${userId} joined room: ${hiveId}`);
             } else {
-                console.warn(`[SECURITY WARNING] User ${userId} tried to join unauthorized room ${hiveId}`);
+                console.log(`SECURITY WARNING : User ${userId} tried to join unauthorized room ${hiveId}`);
             }
         } catch (err) {
             console.error(err);
@@ -73,11 +97,13 @@ io.on('connection', (socket) => {
     socket.on('leave_hive', (hiveId) => {
         if (hiveId) {
             socket.leave(hiveId);
+            socket.joinedHives.delete(hiveId);
         }
         // console.log(`User ${userId} left room: ${hiveId}`);
     });
     socket.on('disconnect', () => {
         activeUsers.delete(userId);
+        socket.joinedHives?.clear();
         // console.log(`Socket disconnected: User ${userId}`);
     });
 });
