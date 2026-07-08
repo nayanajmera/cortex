@@ -2,13 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-
-const http = require('http');
 const socketIo = require('socket.io');
 const Group = require('./models/Group');
 
 const app = express();
-const server = http.createServer(app);
+const server = require('http').createServer(app);
 
 // Initialize Socket.io
 const io = socketIo(server, {
@@ -27,8 +25,7 @@ const jwt = require('jsonwebtoken');
 io.use((socket, next) => {
     try {
         const token = socket.handshake.auth.token;
-        if (!token) return next(new Error('Authentication error'));
-
+        if (!token) return next(new Error('Authentication error'));        
         // Ensure to remove "Bearer " if included
         const cleanToken = token.replace('Bearer ', '');
         const decoded = jwt.verify(cleanToken, process.env.JWT_SECRET);
@@ -74,10 +71,11 @@ io.on('connection', (socket) => {
 
     // Leave isolated Hive Room
     socket.on('leave_hive', (hiveId) => {
-        socket.leave(hiveId);
+        if (hiveId) {
+            socket.leave(hiveId);
+        }
         // console.log(`User ${userId} left room: ${hiveId}`);
     });
-
     socket.on('disconnect', () => {
         activeUsers.delete(userId);
         // console.log(`Socket disconnected: User ${userId}`);

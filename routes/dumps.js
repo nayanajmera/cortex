@@ -9,6 +9,12 @@ const { GoogleGenAI } = require("@google/genai");
 // Initialize Gemini
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+const sanitizeDump = (dump) => {
+    const plainDump = dump.toObject ? dump.toObject() : { ...dump };
+    delete plainDump.embedding;
+    return plainDump;
+};
+
 // @route   POST /api/dumps
 // @desc    Create a new dump (and generate embedding)
 // @access  Private (Logged in users only)
@@ -111,11 +117,11 @@ router.post('/', auth, async (req, res) => {
             if (io) {
                 // Populate user info so the frontend can immediately display the creator's name
                 await dump.populate('user', 'username name');
-                io.to(group.toString()).emit('new_dump', dump);
+                io.to(group.toString()).emit('new_dump', sanitizeDump(dump));
             }
         }
 
-        res.json(dump);
+        res.json(sanitizeDump(dump));
 
     } catch (err) {
         console.error("Error creating dump:", err); // Log full error object
@@ -144,7 +150,7 @@ router.get('/', auth, async (req, res) => {
             .populate('group', 'name')         // Get group name
             .sort({ createdAt: -1 });
 
-        res.json(dumps);
+        res.json(dumps.map(sanitizeDump));
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -229,12 +235,12 @@ router.get('/search', auth, async (req, res) => {
                 .limit(5);
 
             dumps = fallbackDumps.map(doc => {
-                const obj = doc.toObject();
+                const obj = sanitizeDump(doc);
                 obj.isFallback = true;
                 return obj;
             });
         }
-        res.json(dumps);
+        res.json(dumps.map(sanitizeDump));
 
     } catch (err) {
         console.error(err.message);
@@ -281,7 +287,7 @@ router.get('/group/:groupId', auth, async (req, res) => {
             .populate('user', 'username') // "Populate" fetches the author's name from User collection
             .sort({ createdAt: -1 }); // Newest first
 
-        res.json(dumps);
+        res.json(dumps.map(sanitizeDump));
 
     } catch (err) {
         console.error(err.message);
@@ -308,7 +314,7 @@ router.get('/:id', auth, async (req, res) => {
             return res.status(403).json({ msg: 'Access Denied: You do not own this dump' });
         }
 
-        res.json(dump);
+        res.json(sanitizeDump(dump));
     } catch (err) {
         console.error(err.message);
         if (err.kind === 'ObjectId') {

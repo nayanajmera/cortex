@@ -96,9 +96,9 @@ router.post('/', auth, async (req, res) => {
         // --- STEP 3: GENERATE ANSWER (The "Flash" Model) ---
 
         const prompt = `
-        You are Cortex, a Second Brain AI. 
-        Answer the user's question based STRICTLY on the context provided below.
-        If the answer is not in the context, say "I don't have that information in your notes."
+        You are Cortex, a Second Brain AI.
+        Answer the user's question based on the context(user's notes) provided below.
+        If the answer is not in the user's notes, then tell them about it in a polite(or humorous sometimes) way but do not make up an answer.
         
         USER QUESTION: "${message}"
 
