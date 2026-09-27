@@ -160,6 +160,15 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'meme.html'));
 });
 
+app.get('/api/db-ping', async (req, res) => {
+    try {
+        await mongoose.connection.db.admin().ping();
+        res.status(200).send('Database pinged successfully');
+    } catch (error) {
+        res.status(500).send('Database ping failed');
+    }
+});
+
 // Catch-all for any other unmatched requests (404 handler)
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', 'meme.html'));
