@@ -124,12 +124,16 @@ app.use(cors({
 app.use(helmet());
 
 // 3. Global Rate Limiter (Max 200 requests per 15 mins)
+// 3. Global Rate Limiter (Max 200 requests per 15 mins)
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 200,
     message: { msg: "Too many requests from this IP, please try again later." },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    
+    // rate limiter bypass for k6 stress testing
+    skip: (req) => req.headers['x-k6-test-bypass'] === process.env.K6_BYPASS_SECRET
 });
 app.use('/api', apiLimiter);
 
