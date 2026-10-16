@@ -134,7 +134,7 @@ router.post('/', auth, async (req, res) => {
 router.get('/', auth, async (req, res) => {
     try {
         // 1. Find all groups the user belongs to
-        const myGroups = await Group.find({ members: req.user.id }).select('_id');
+        const myGroups = await Group.find({ members: req.user.id }).select('_id').lean();
         const groupIds = myGroups.map(g => g._id);
 
         // 2. Complex Query:
@@ -148,7 +148,8 @@ router.get('/', auth, async (req, res) => {
         })
             .populate('user', 'username name') // Get owner details
             .populate('group', 'name')         // Get group name
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
         res.json(dumps.map(sanitizeDump));
     } catch (err) {

@@ -52,5 +52,7 @@ const dumpSchema = new mongoose.Schema({
 
 // Create a text index for standard keyword search (backup for Vector search)
 dumpSchema.index({ title: 'text', content: 'text' });
+dumpSchema.index({ user: 1, createdAt: -1 });
+dumpSchema.index({ group: 1, isPrivate: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Dump', dumpSchema);
