@@ -127,7 +127,7 @@ app.use(helmet());
 // 3. Global Rate Limiter (Max 200 requests per 15 mins)
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200,
+    max: 500,
     message: { msg: "Too many requests from this IP, please try again later." },
     standardHeaders: true,
     legacyHeaders: false,
