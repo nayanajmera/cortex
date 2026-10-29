@@ -196,26 +196,23 @@ router.get('/search', auth, async (req, res) => {
         let dumps = await Dump.aggregate([
             {
                 "$vectorSearch": {
-                    "index": "vector_index", // Name of index you created in Atlas
-                    "path": "embedding",     // Field to search
+                    "index": "vector_index", 
+                    "path": "embedding",     
                     "queryVector": queryVector,
-                    "numCandidates": 100,    // How many to check (higher = slower but more accurate)
-                    "limit": 10              // Return top 10 matches
-                }
-            },
-            {
-                // Only show dumps belonging to this user or groups they are in
-                "$match": {
-                    "$or": [
-                        { "user": new mongoose.Types.ObjectId(req.user.id) },
-                        { "group": { "$in": groupIds.map(id => new mongoose.Types.ObjectId(id)) }, "isPrivate": false }
-                    ]
+                    "numCandidates": 100,    
+                    "limit": 10,             
+                    "filter": {
+                        "$or": [
+                            { "user": new mongoose.Types.ObjectId(req.user.id) },
+                            { "group": { "$in": groupIds.map(id => new mongoose.Types.ObjectId(id)) }, "isPrivate": false }
+                        ]
+                    }
                 }
             },
             {
                 "$project": {
-                    "embedding": 0, // Don't send the massive vector back to frontend
-                    "score": { "$meta": "vectorSearchScore" } // Show match confidence score
+                    "embedding": 0, 
+                    "score": { "$meta": "vectorSearchScore" } 
                 }
             }
         ]);
