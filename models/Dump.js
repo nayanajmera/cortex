@@ -11,13 +11,11 @@ const dumpSchema = new mongoose.Schema({
     ref: 'Group',
     default: null
   },
-  // --- NEW FIELD ---
   title: {
     type: String,
     trim: true,
-    maxlength: 100, // Short and sweet
+    maxlength: 100, 
     default: function() {
-      // Smart Default: If no title is provided, use the first 30 chars of content...
       if (this.content && this.content.length > 0) {
         return this.content.substring(0, 30) + (this.content.length > 30 ? "..." : "");
       }
@@ -28,12 +26,10 @@ const dumpSchema = new mongoose.Schema({
   content: {
     type: String,
     required: true
-    // No maxlength here, allowing for very large text (up to 16MB MongoDB limit)
   },
-  embedding: {
+  embedding: {//Vector embedding for semantic search
     type: [Number], 
     required: true
-    // This allows the AI search to work.
   },
   tags: [String], 
   isPrivate: {
@@ -50,7 +46,7 @@ const dumpSchema = new mongoose.Schema({
   }
 });
 
-// Create a text index for standard keyword search (backup for Vector search)
+
 dumpSchema.index({ title: 'text', content: 'text' });
 dumpSchema.index({ user: 1, createdAt: -1 });
 dumpSchema.index({ group: 1, isPrivate: 1, createdAt: -1 });

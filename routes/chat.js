@@ -51,15 +51,13 @@ router.post('/', auth, async (req, res) => {
                     "path": "embedding",
                     "queryVector": queryVector,
                     "numCandidates": 100,
-                    "limit": 5
-                }
-            },
-            {
-                "$match": {
-                    "$or": [
-                        { "user": new mongoose.Types.ObjectId(req.user.id) },
-                        { "group": { "$in": groupIds.map(id => new mongoose.Types.ObjectId(id)) }, "isPrivate": false }
-                    ]
+                    "limit": 5,
+                    "filter": {
+                        "$or": [
+                            { "user": new mongoose.Types.ObjectId(req.user.id) },
+                            { "group": { "$in": groupIds.map(id => new mongoose.Types.ObjectId(id)) }, "isPrivate": false }
+                        ]
+                    }
                 }
             },
             { "$project": { "content": 1, "createdAt": 1, "title": 1 } }

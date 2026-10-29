@@ -78,7 +78,7 @@ router.post('/', auth, async (req, res) => {
         // We truncate to 8000 to be safe.
         const contentToEmbed = content.substring(0, 8000);
 
-        // 1. Generate Embedding (Default 3072 dimensions, truncated to 768)
+        // 1. Generate Embedding
         const result = await genAI.models.embedContent({
             model: process.env.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-2-preview',
             contents: [
@@ -101,7 +101,7 @@ router.post('/', auth, async (req, res) => {
         // 2. Create the Dump object
         const newDump = new Dump({
             user: req.user.id,
-            content, // Save the FULL content to DB (MongoDB handles up to 16MB)
+            content, // Save the FULL content to DB
             title,
             group: group || null,
             tags: tags || [],
